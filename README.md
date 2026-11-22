@@ -1,9 +1,8 @@
-## KineType Studio 
+# KineType Studio 
 
-### KineType 快闪字幕「倒鸭子」
+## KineType 快闪字幕「倒鸭子」
 
-一个动态字幕生成器，它复刻的是 TypeMonkey /「倒鸭子」这类
-快闪文字混排效果，不需要 After Effects，就可以完成这种效果。
+### 一个动态字幕生成器，它复刻的是 TypeMonkey /「倒鸭子」这类快闪文字混排效果，不需要 After Effects，就可以完成这种效果。
 
 ## 本地部署
 
