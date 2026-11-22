@@ -2,7 +2,7 @@
 
     python examples/music/make_daoyazi_beat.py examples/music/daoyazi_beat.wav
 
-The beeps are placed on the **real** beat times Kinetype computes for the demo
+The beeps are placed on the **real** beat times KineType computes for the demo
 script, not on hand-copied timestamps – so the audio can never drift out of sync
 with the typography when the cadence is retuned.  Everything here is synthesised,
 so the demo carries no third-party audio.
@@ -25,7 +25,7 @@ SCRIPT = HERE.parent / "daoyazi.zh.txt"
 
 
 def beat_times() -> tuple[list[float], float]:
-    """Ask Kinetype for the exact beat times of the demo script."""
+    """Ask KineType for the exact beat times of the demo script."""
     from kinetype.config import load_config
     from kinetype.script import assign_timeline, load_script
 

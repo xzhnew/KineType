@@ -1,4 +1,4 @@
-# Kinetype 部署记录
+# KineType 部署记录
 
 ## 本次提交
 
@@ -6,7 +6,7 @@
 |---|---|
 | 源码仓库 | `https://github.com/xzhnew/kinetype` |
 | 源码分支 | `main` |
-| 源码 commit | `7fab85a`（Initial import of Kinetype (GPL-3.0-only)） |
+| 源码 commit | `7fab85a`（Initial import of KineType (GPL-3.0-only)） |
 | 部署分支 | `gh-pages` |
 | 部署 commit | `503739a` |
 | 部署方式 | `npx gh-pages -d web-ui/dist -b gh-pages` |

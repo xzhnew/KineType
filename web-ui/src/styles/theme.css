@@ -1,5 +1,5 @@
 /* ============================================================
-   Kinetype × WinUIonWeb —— 主题
+   KineType × WinUIonWeb —— 主题
    背景一律用 WinUIonWeb 官方默认（不自行造色）：
      浅色 = #f3f3f3 底 / #f9f9f9 顶层   深色 = #202020 底 / #282828 顶层
    强调色来自「中国传统颜色」谱（page.hcyhub.com）：
@@ -780,7 +780,7 @@ html.theme-dark .wf-btn-rec.win-button:not(:disabled):hover { color: #e58a8f; }
 .sd-row-icon { color: var(--TextFillColorPrimaryBrush, #1a1a1a); flex: 0 0 auto; }
 .sd-row-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .sd-row-title { font-size: var(--wf-font-body); color: var(--TextFillColorPrimaryBrush, #1a1a1a); }
-/* 标题里的 Kinetype 链接：去掉按钮默认内边距，贴合标题排版 */
+/* 标题里的 KineType 链接：去掉按钮默认内边距，贴合标题排版 */
 .sd-title-link { margin-left: -2px; }
 .sd-title-link.win-hyperlink-button,
 .sd-title-link .win-hyperlink-button { padding: 0 !important; min-width: 0 !important; min-height: 0 !important; }

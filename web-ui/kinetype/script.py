@@ -2,7 +2,7 @@
 
 Three input levels exist on purpose:
 
-* ``plain``  – a wall of text; Kinetype splits it into beats and guesses timing so
+* ``plain``  – a wall of text; KineType splits it into beats and guesses timing so
   you can drop a script in and export a video with no manual work at all.
 * ``srt``    – real subtitle timings (e.g. exported from 剪映 / CapCut), so the
   flashing text stays glued to a voice-over.

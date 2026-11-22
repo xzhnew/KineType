@@ -1,4 +1,4 @@
-﻿"""Kinetype configuration: dataclass options, presets and JSON (de)serialisation.
+﻿"""KineType configuration: dataclass options, presets and JSON (de)serialisation.
 
 Everything the renderer needs is expressed by :class:`RenderConfig` so a look can
 be reproduced exactly from a single JSON file or CLI flag set.

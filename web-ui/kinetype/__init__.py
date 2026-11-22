@@ -1,4 +1,4 @@
-"""Kinetype – waterfall / rapid-flash kinetic typography without After Effects.
+"""KineType – waterfall / rapid-flash kinetic typography without After Effects.
 
 Public API::
 

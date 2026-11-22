@@ -1,4 +1,4 @@
-/* Kinetype render engine — ported verbatim from web/kinetype.html (the single-file
+/* KineType render engine — ported verbatim from web/kinetype.html (the single-file
    version), decoupled from the DOM: options come in as a plain object, output goes
    to a canvas you own.  Everything below matches the original logic 1:1 so a
    re-render is frame-for-frame identical.

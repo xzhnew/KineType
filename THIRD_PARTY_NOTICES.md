@@ -1,6 +1,6 @@
 # Third-party notices
 
-Kinetype is licensed under **GPL-3.0-only**. See `LICENSE` for the complete text.
+KineType is licensed under **GPL-3.0-only**. See `LICENSE` for the complete text.
 
 ## Why GPL-3.0-only (and not MIT / non-commercial)
 

@@ -359,7 +359,7 @@ defineExpose({ open })
           <div class="sd-row-title">
             <HyperlinkButton
               class="sd-link sd-title-link"
-              Content="Kinetype Studio"
+              Content="KineType"
               FontSize="14"
               Padding="0"
               NavigateUri="https://github.com/Furry-Xiyi/WinUIonWeb" />

@@ -29,7 +29,7 @@ async function openSettings() {
     <header class="wf-titlebar">
       <div class="wf-brand">
         <span class="mark"><AppIcon glyph="&#xE7A2;" :size="16" /></span>
-        <span>Kinetype Studio</span>
+        <span>KineType</span>
       </div>
       <span class="wf-sub">快闪字幕「倒鸭子」</span>
       <span class="spacer" />

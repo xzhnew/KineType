@@ -1,4 +1,4 @@
-"""Kinetype – turn a script into a waterfall-typography video with one command.
+"""KineType – turn a script into a waterfall-typography video with one command.
 
     kinetype render script.txt --preset meme-punch --audio voice.wav
 
@@ -28,7 +28,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="kinetype",
         description="Render snappy waterfall / rapid-flash typography videos from plain text.",
     )
-    parser.add_argument("--version", action="version", version="Kinetype 0.1.0")
+    parser.add_argument("--version", action="version", version="KineType 0.1.0")
     sub = parser.add_subparsers(dest="command")
 
     # -- render ---------------------------------------------------------- #
@@ -67,10 +67,10 @@ def build_parser() -> argparse.ArgumentParser:
     # -- inspect --------------------------------------------------------- #
     presets = sub.add_parser("presets", help="list the built-in looks")
     presets.add_argument("--json", action="store_true")
-    sub.add_parser("fonts", help="show which font files Kinetype resolved")
+    sub.add_parser("fonts", help="show which font files KineType resolved")
 
     sheet = sub.add_parser("sheet", help="grab N frames from a video into one contact sheet")
-    sheet.add_argument("video", help="an mp4 produced by Kinetype")
+    sheet.add_argument("video", help="an mp4 produced by KineType")
     sheet.add_argument("-n", "--frames", type=int, default=12)
     sheet.add_argument("-o", "--out", default="sheet.png")
     sheet.add_argument("--cols", type=int, default=6)

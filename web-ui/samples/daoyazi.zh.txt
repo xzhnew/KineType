@@ -1,4 +1,4 @@
-# Kinetype demo script — the 2012 "倒鸭子" (backward duck) insurance phone call.
+# KineType demo script — the 2012 "倒鸭子" (backward duck) insurance phone call.
 # Blank lines make hard beat breaks. [brackets] mark a highlighted keyword,
 # **double stars** force bold, | forces a line break inside one flash.
 

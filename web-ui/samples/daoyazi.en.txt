@@ -1,4 +1,4 @@
-# Same look, latin script. Kinetype auto-detects latin text and switches faces,
+# Same look, latin script. KineType auto-detects latin text and switches faces,
 # word rhythm and reading speed.
 
 Hello? Yes, this is **the insurance company**.
