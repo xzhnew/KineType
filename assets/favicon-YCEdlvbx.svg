@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round">
+  <!-- SVG images have no inherited currentColor; follow the browser theme so
+       the mark stays visible on both light and dark tabs. -->
+  <style>
+    path { stroke: #1a1a1a; }
+    @media (prefers-color-scheme: dark) { path { stroke: #fafafa; } }
+  </style>
+  <path d="M6.5 4.5v8.5M12 4.5v15M17.5 4.5v12"/>
+</svg>
