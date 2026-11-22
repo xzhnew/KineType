@@ -376,7 +376,7 @@ defineExpose({ open })
             构建
           </div>
         </div>
-        <span class="sd-ver">v0.1.0</span>
+        <span class="sd-ver">公厕版v26.11.1</span>
       </div>
     </div>
 
