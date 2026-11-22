@@ -587,8 +587,6 @@ const ALIGN_MODES = [
 
 function setAlign(value) {
   state.align = value
-  const item = ALIGN_MODES.find(a => a.value === value)
-  flashScriptMsg(`对齐：${item ? item.label : value}`)
 }
 
 /* Traditional palette picks for quick text coloring. */
@@ -787,7 +785,6 @@ async function onFontFilePicked(event) {
         </div>
 
         <div class="wf-align-row">
-          <span class="wf-align-label">对齐</span>
           <Button v-for="mode in ALIGN_MODES" :key="mode.value"
             class="wf-align-btn" :class="{ active: state.align === mode.value }"
             :title="mode.label" @Click="setAlign(mode.value)">

@@ -329,11 +329,6 @@ body {
 /* Alignment switch: same 28 px WinUI button rhythm as the format toolbar,
    but it reads as a segmented control because it changes the whole layout. */
 .wf-align-row { display: flex; align-items: center; gap: 3px; margin: 2px 0 6px; }
-.wf-align-label {
-  font-size: var(--wf-font-caption);
-  color: var(--TextFillColorSecondaryBrush, #6b6b6b);
-  margin-right: 4px;
-}
 .wf-align-row .wf-align-btn.win-button,
 .wf-align-row .wf-align-btn {
   width: 28px; min-width: 28px; height: 28px; min-height: 28px;
