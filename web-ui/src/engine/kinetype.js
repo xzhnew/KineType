@@ -216,33 +216,12 @@ export function parseScript(text, seg, cps) {
   }));
 }
 
-/* Actual painted bounds of a sprite. Aligning on the text origin leaves a
-   font-size-dependent left bearing, which makes different-sized lines look
-   ragged even when their origins match. */
-function inkBounds(c, g) {
-  const w = c.width, h = c.height;
-  const d = g.getImageData(0, 0, w, h).data;
-  let minX = w, maxX = -1, minY = h, maxY = -1;
-  for (let y = 0; y < h; y++) {
-    const row = y * w * 4;
-    for (let x = 0; x < w; x++) {
-      if (d[row + x * 4 + 3] > 8) {
-        if (x < minX) minX = x;
-        if (x > maxX) maxX = x;
-        if (y < minY) minY = y;
-        if (y > maxY) maxY = y;
-      }
-    }
-  }
-  return maxX < 0 ? null : { l: minX, r: maxX + 1, t: minY, b: maxY + 1 };
-}
-
 /* ================= layout: beat -> sprite ================= */
 /* Every key carries its own style; the sprite is the beat's line box in the
    block's LOCAL frame (the block as a whole may be rotated later).
    `maxLine` is the longest a line may get — chosen so the line still fits after
    the block rotates 90°, where it runs along the screen's short side. */
-function layoutBeat(beat, fsBase, acc, defFont, defWeight, aliasMap, maxLine, P, align, bandW = 0) {
+function layoutBeat(beat, fsBase, acc, defFont, defWeight, aliasMap, maxLine, P) {
   const probe = document.createElement("canvas").getContext("2d");
   const maxW = maxLine;
   const fontOf = (k, px) => {
@@ -274,24 +253,6 @@ function layoutBeat(beat, fsBase, acc, defFont, defWeight, aliasMap, maxLine, P,
   let fit = 1, rows = wrap(fsBase);
   const widest = r => Math.max(...r.map(x => x.w), 0);
   while ((widest(rows) > maxW || rows.length > 3) && fit > 0.45) { fit *= 0.9; rows = wrap(fsBase * fit); }
-  /* Left/right alignment asks for one deliberate size per line instead of the
-     old optical centring: fewer characters get a wider band (80%), longer
-     lines a narrower one (60%), so every line lands near the same visual
-     length without being forced to an identical width. */
-  if (bandW) {
-    const chars = beat.keys.reduce((n, k) => n + (k.text ? k.text.replace(/\s/g, "").length : 0), 0);
-    const ratio = 0.80 - 0.20 * clamp((chars - 4) / 16, 0, 1);
-    const target = Math.min(maxW, bandW * ratio);
-    let f = clamp(target / Math.max(1, widest(rows)), 0.45, 2.4);
-    let rr = wrap(fsBase * f);
-    let guard = 0;
-    while ((widest(rr) > target * 1.12 || rr.length > 3) && f > 0.45 && guard++ < 10) {
-      f *= 0.94;
-      rr = wrap(fsBase * f);
-    }
-    fit = f;
-    rows = rr;
-  }
   if (beat.keys.length <= 2 && rows.length === 1 && rows[0].w < maxW * 0.55) {
     const big = Math.min(1.5, (maxW * 0.78) / rows[0].w);
     const rr = wrap(fsBase * big);
@@ -316,13 +277,7 @@ function layoutBeat(beat, fsBase, acc, defFont, defWeight, aliasMap, maxLine, P,
     const asc = px * 0.98, desc = px * 0.30;
     const base = y + asc; lastBase = base;
     const r = rng("dx" + beat.index + "r" + ri);
-    /* Rows are baked into the sprite, so the alignment has to happen here:
-       left/right keep the glyph edge on a shared axis, centre keeps the old
-       jittered optical centring. */
-    let x = align === "left" ? pad
-      : align === "right" ? c.width - pad - row.w
-      : (c.width - row.w) / 2;
-    if (align !== "left" && align !== "right") x += (r() - 0.5) * px * 0.08;
+    let x = (c.width - row.w) / 2 + (r() - 0.5) * px * 0.08;
     for (const k of row.keys) {
       const st = k.st || {};
       const kSize = fsBase * fit * ((st.size) || 1);
@@ -372,20 +327,9 @@ function layoutBeat(beat, fsBase, acc, defFont, defWeight, aliasMap, maxLine, P,
     if (P.glow && useFx && !shadowOff) g.restore();
     g.shadowColor = "transparent"; g.shadowBlur = 0; g.shadowOffsetY = 0;
   }
-  const ink = inkBounds(c, g) || { l: pad, r: c.width - pad, t: pad, b: c.height - pad };
-  return { img: c, w: c.width, h: c.height, ay: (lastBase) / c.height, fs: fsBase * fit, pad,
-    inkL: ink.l, inkR: ink.r, inkT: ink.t, inkB: ink.b };
+  return { img: c, w: c.width, h: c.height, ay: (lastBase) / c.height, fs: fsBase * fit, pad };
 }
 
-
-/* ---- 2D affine helpers (rotation composition) -------------------------- */
-const AFFINE_I = { a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 };
-const affineApply = (M, x, y) => [M.a * x + M.c * y + M.e, M.b * x + M.d * y + M.f];
-function affineRotateAround(px, py, deg) {
-  const r = deg * Math.PI / 180, ca = Math.cos(r), sa = Math.sin(r);
-  return { a: ca, b: sa, c: -sa, d: ca,
-    e: px - ca * px + sa * py, f: py - sa * px - ca * py };
-}
 /* ================= line rotation ================= */
 /* The GLYPHS never rotate – every line always reads upright.  A rotation event
    only swings the POSITIONS of the lines that were already on screen (the ones
@@ -393,7 +337,7 @@ function affineRotateAround(px, py, deg) {
    it keeps stacking straight up.  Lines above are pushed out sideways as the
    stack grows, and vanish once they leave the frame. */
 const ROT_DUR = 0.55;
-function planRotations(beats, layout, W, H, fs, rotdir, align = "center") {
+function planRotations(beats, layout, W, H, fs, rotdir) {
   const events = []; let seg = 0, stackH = 0;
   for (let i = 0; i < beats.length; i++) {
     const slot = layout[i].h * 1.045 + fs * 0.06;
@@ -408,11 +352,7 @@ function planRotations(beats, layout, W, H, fs, rotdir, align = "center") {
       /* explicit degree wins; otherwise alternate the swing so the pile fans out
          instead of spinning into an upside-down arrangement */
       const base = rotdir === "ccw" ? -1 : rotdir === "rand" ? (rng("rd" + i)() < 0.5 ? -1 : 1) : 1;
-      let delta = want != null ? want : (events.length % 2 === 0 ? 90 : -90) * base;
-      /* Alignment and rotation direction must agree: left-aligned text can
-         only swing left, right-aligned only right. Centre keeps alternating. */
-      if (align === "left" && delta > 0) delta = -Math.abs(delta);
-      if (align === "right" && delta < 0) delta = Math.abs(delta);
+      const delta = want != null ? want : (events.length % 2 === 0 ? 90 : -90) * base;
       events.push({ t: beats[i].start, beatIndex: i, delta, seg: seg + 1 });
       seg++; stackH = 0;
     }
@@ -421,6 +361,7 @@ function planRotations(beats, layout, W, H, fs, rotdir, align = "center") {
   }
   return events;
 }
+/* how far a given line has been swung away from upright, in degrees (animated) */
 function segmentAgeFade(t, b, events) {
   /* b is from segment s; once the second rotation after it fires, b is gone –
      a hard cut, no fade-out flash */
@@ -478,7 +419,6 @@ export class Engine {
     const fs = 44 * Math.sqrt((W * H) / refArea) * zoom;
     const defFont = o.defFont || "Microsoft YaHei";
     const defWeight = +(o.defWeight || 400) || 400;
-    const align = o.align || "center";
     /* Per-aspect max line width. Landscape frames let a line run nearly edge
        to edge; portrait frames are bounded by their own (short) side. Keep each
        ratio explicit instead of one shared factor — the old
@@ -491,33 +431,12 @@ export class Engine {
     /* A beat with an explicit {转} runs its lines along H after turning, so
        only those need the short-side cap. */
     const maxLineRotated = H * 0.9;
-    /* Alignment is per era: the first segment uses the global setting, and each
-       segment created by a rotation takes the direction of that rotation
-       (left→left, right→right). Layout heights change with the band scaling, so
-       run the layout → rotation plan loop twice. */
-    const bandFor = b => b.rotReq ? maxLineRotated : W;
-    const makeLayout = al => beats.map(b => layoutBeat(b, fs, acc, defFont, defWeight,
-      o.aliasMap, b.rotReq ? Math.min(maxLineWide, maxLineRotated) : maxLineWide, P,
-      al[b.index], al[b.index] === "center" ? 0 : bandFor(b)));
-    let alignArr = beats.map(() => align);
-    let layout = makeLayout(alignArr);
+    const layout = beats.map(b => layoutBeat(b, fs, acc, defFont, defWeight, o.aliasMap,
+      b.rotReq ? Math.min(maxLineWide, maxLineRotated) : maxLineWide, P));
+
     /* timeline first – rotation events are keyed to beat start times */
     let t = 0.25; for (const b of beats) { b.start = t; t += b.dur + 0.06; }
-    let events = planRotations(beats, layout, W, H, fs, o.rotDir, align);
-    for (let pass = 0; pass < 2 && align !== "center"; pass++) {
-      const next = beats.map(b => {
-        if (!b.seg) return align;
-        const e = events[b.seg];
-        return e ? (e.delta < 0 ? "left" : "right") : align;
-      });
-      if (next.every((v, i) => v === alignArr[i])) break;
-      alignArr = next;
-      layout = makeLayout(alignArr);
-      events = planRotations(beats, layout, W, H, fs, o.rotDir, align);
-    }
-    /* Widest glyph box across all beats: left/right alignment shares one axis and
-       the whole block stays optically centred in the frame. */
-    const blockW = Math.max(...layout.map(l => Math.max(0, (l.inkR || l.w) - (l.inkL || 0))));
+    const events = planRotations(beats, layout, W, H, fs, o.rotDir);
     /* depth scale: how strongly lines shrink (or grow) as they travel upward */
     const depth = +o.depth || 0;
 
@@ -544,7 +463,7 @@ export class Engine {
       g.fillStyle = g.createPattern(n, "repeat"); g.fillRect(0, 0, W, H);
       g.globalCompositeOperation = "source-over"; g.globalAlpha = 1; }
     this.lastDrawT = 0;
-    this.prog = { beats, layout, bg, P, W, H, total: t + 0.6, acc, events, defFont, defWeight, depth, align, blockW };
+    this.prog = { beats, layout, bg, P, W, H, total: t + 0.6, acc, events, defFont, defWeight, depth };
     return this.prog;
   }
 
@@ -593,40 +512,21 @@ export class Engine {
     };
     const yOf = {};
     for (const b of live) yOf[b.index] = stackY(b.index, layout[b.index]);
-    const align = prog.align || "center";
-    const blockW = prog.blockW || 0;
-    /* Sprite centre for a beat under the current alignment. The glyph box sits
-       `pad` inside the sprite, so subtract it to align the ink, not the padding. */
-    /* `s` is the depth/enter scale applied later. Scaling happens around the
-       line centre, so compensate here to keep the aligned edge pinned to the
-       axis instead of drifting with font size. */
-    const xOf = (L, s = 1) => {
-      const l = L.inkL ?? L.pad ?? 0, r = L.inkR ?? (L.w - (L.pad || 0));
-      return align === "left" ? -blockW / 2 + s * (L.w / 2 - l)
-        : align === "right" ? blockW / 2 - s * (r - L.w / 2) : 0;
-    };
-
-    /* One rotation per segment: event k turns the lines of segment k and then
-       leaves them alone. Chaining every later rotation into older piles made
-       them converge on the centre and overlap each other. */
-    const evs = events.map(e => ({ ...e,
-      ang: t >= e.t ? e.delta * outBack((t - e.t) / ROT_DUR, 1.25) : 0 }));
-    const evR = [], evA = [];
-    for (let i = 0; i < evs.length; i++) {
-      const e = evs[i], Lf = layout[e.anchor] || layout[0];
-      const yPivot = stackY(e.anchor, Lf);
+    /* Pivots are resolved once per frame: each rotation happens around the
+       top corner of the line that was new when that {转} fired, offset 45°
+       outward. That line is never touched by earlier rotations, so the pivot
+       can be expressed directly in screen-space; composing the events in
+       chronological order then keeps every earlier block rigid. */
+    const rotEvents = events.map(e => {
+      const Lf = layout[e.beatIndex] || layout[0];
       const pad = Lf.pad || 0;
-      const off = Lf.fs * 0.55;                             /* 45°: equal dx/dy */
-      const bxF = xOf(Lf);
-      const leftEdge = bxF - Lf.w / 2 + (Lf.inkL ?? pad);
-      const rightEdge = bxF - Lf.w / 2 + (Lf.inkR ?? (Lf.w - pad));
-      const bottomY = yPivot - Lf.h / 2 + (Lf.inkB ?? (Lf.h - pad));
-      const pivot = e.delta > 0 ? [rightEdge + off, bottomY + off]
-        : [leftEdge - off, bottomY + off];
-      evR.push(affineRotateAround(pivot[0], pivot[1], e.ang));
-      evA.push(e.ang);
-    }
-
+      const off = Lf.fs * 0.55;
+      return {
+        ...e,
+        pivotX: e.delta > 0 ? Lf.w / 2 - pad + off : -Lf.w / 2 + pad - off,
+        pivotY: stackY(e.beatIndex, Lf) - Lf.h / 2 + pad + off,
+      };
+    });
     for (const b of live) {
       const L = layout[b.index], age = t - b.start;
       const y = yOf[b.index];
@@ -652,25 +552,24 @@ export class Engine {
       const travel = clamp((-y - dy) / Math.max(1, Math.min(W, H) * 0.34), 0, 1);
       const dscale = 1 - (prog.depth || 0) / 100 * travel;
       sc *= Math.max(0.2, dscale);
-      /* ---- rotation era ------------------------------------------------
-         The pile above {转} turns as ONE rigid group around a point just
-         outside the BOTTOM corner of the line that was showing when {转} fired:
-           · turning left  → bottom-left corner, offset 45° down-left
-           · turning right → bottom-right corner, offset 45° down-right
-         Both offsets are equal in x and y, so the pivot is the lower vertex of
-         the square built on the old/new corner positions. Swinging from below
-         keeps the turned pile clear of the live line instead of folding it
-         over the text. */
-      /* Each rotation is a world-space transform around its own pivot, so
-         several rotations compose instead of all lines swinging around the
-         first one. A line in segment k is affected by events k..N-1. */
-      const k = b.seg || 0;
-      const rotSum = evA[k] || 0;
-      const rotated = Math.abs(rotSum) > 1e-4;
-      const bx = xOf(L, rotated ? 1 : sc);
-      let px = bx, py = y + dy;
-      if (rotated) { const q = affineApply(evR[k], bx, y + dy); px = q[0]; py = q[1]; }
-      const a = rotSum;
+      /* ---- rotation eras -----------------------------------------------
+         Each {转} swings everything above its anchor line by 90° around the
+         anchor's top corner (offset 45° outward). Events are applied in
+         chronological order, so a second {转} rotates the already-turned pile
+         as a rigid body instead of snapping it to a new single pivot. The
+         turned block's bottom edge lands on the anchor line's top edge, so it
+         can never spill down into the unrotated text. */
+      let px = 0, py = y + dy, a = 0;
+      for (const e of rotEvents) {
+        if (e.beatIndex <= b.index || t < e.t) continue;
+        const ae = e.delta * outBack((t - e.t) / ROT_DUR, 1.25);
+        if (!ae) continue;
+        const rad = ae * Math.PI / 180, c = Math.cos(rad), s = Math.sin(rad);
+        const dx0 = px - e.pivotX, dy0 = py - e.pivotY;
+        px = e.pivotX + dx0 * c - dy0 * s;
+        py = e.pivotY + dx0 * s + dy0 * c;
+        a += ae;
+      }
       const ca = Math.cos(a * Math.PI / 180), sa = Math.sin(a * Math.PI / 180);
       /* sprite occupies [px-w/2, px+w/2] × [py-h/2, py+h/2] (rotated when a≠0) */
       const scx0 = W / 2 + px, scy0 = H / 2 + py;
