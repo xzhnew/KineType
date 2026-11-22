@@ -326,6 +326,39 @@ body {
 }
 .wf-tool-italic { font-style: italic; }
 
+/* Alignment switch: same 28 px WinUI button rhythm as the format toolbar,
+   but it reads as a segmented control because it changes the whole layout. */
+.wf-align-row { display: flex; align-items: center; gap: 3px; margin: 2px 0 6px; }
+.wf-align-label {
+  font-size: var(--wf-font-caption);
+  color: var(--TextFillColorSecondaryBrush, #6b6b6b);
+  margin-right: 4px;
+}
+.wf-align-row .wf-align-btn.win-button,
+.wf-align-row .wf-align-btn {
+  width: 28px; min-width: 28px; height: 28px; min-height: 28px;
+  padding: 0 !important;
+  background: transparent;
+  border-color: transparent;
+}
+.wf-align-row .wf-align-btn .win-button-content-presenter {
+  width: 100%; height: 100%; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 4px;
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+.wf-align-row .wf-align-btn:hover .win-button-content-presenter {
+  background-color: var(--SubtleFillColorSecondaryBrush, rgba(255, 255, 255, 0.08)) !important;
+}
+.wf-align-btn .app-icon { color: var(--TextFillColorSecondaryBrush, #6b6b6b); }
+.wf-align-btn.active .win-button-content-presenter {
+  background-color: var(--SubtleFillColorSecondaryBrush, rgba(255, 255, 255, 0.08)) !important;
+  box-shadow: inset 0 0 0 1px var(--AccentFillColorDefaultBrush, #2775b6);
+}
+.wf-align-btn.active .app-icon { color: var(--AccentFillColorDefaultBrush, #2775b6); }
+
+
 /* Color swatches: an inline row under the toolbar (never clipped by the
    Expander content), each swatch a compact WinUI button. */
 .wf-script-colors {

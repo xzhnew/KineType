@@ -221,7 +221,7 @@ export function parseScript(text, seg, cps) {
    block's LOCAL frame (the block as a whole may be rotated later).
    `maxLine` is the longest a line may get — chosen so the line still fits after
    the block rotates 90°, where it runs along the screen's short side. */
-function layoutBeat(beat, fsBase, acc, defFont, defWeight, aliasMap, maxLine, P) {
+function layoutBeat(beat, fsBase, acc, defFont, defWeight, aliasMap, maxLine, P, align) {
   const probe = document.createElement("canvas").getContext("2d");
   const maxW = maxLine;
   const fontOf = (k, px) => {
@@ -277,7 +277,13 @@ function layoutBeat(beat, fsBase, acc, defFont, defWeight, aliasMap, maxLine, P)
     const asc = px * 0.98, desc = px * 0.30;
     const base = y + asc; lastBase = base;
     const r = rng("dx" + beat.index + "r" + ri);
-    let x = (c.width - row.w) / 2 + (r() - 0.5) * px * 0.08;
+    /* Rows are baked into the sprite, so the alignment has to happen here:
+       left/right keep the glyph edge on a shared axis, centre keeps the old
+       jittered optical centring. */
+    let x = align === "left" ? pad
+      : align === "right" ? c.width - pad - row.w
+      : (c.width - row.w) / 2;
+    if (align !== "left" && align !== "right") x += (r() - 0.5) * px * 0.08;
     for (const k of row.keys) {
       const st = k.st || {};
       const kSize = fsBase * fit * ((st.size) || 1);
@@ -436,6 +442,7 @@ export class Engine {
     const fs = 44 * Math.sqrt((W * H) / refArea) * zoom;
     const defFont = o.defFont || "Microsoft YaHei";
     const defWeight = +(o.defWeight || 400) || 400;
+    const align = o.align || "center";
     /* Per-aspect max line width. Landscape frames let a line run nearly edge
        to edge; portrait frames are bounded by their own (short) side. Keep each
        ratio explicit instead of one shared factor — the old
@@ -449,7 +456,10 @@ export class Engine {
        only those need the short-side cap. */
     const maxLineRotated = H * 0.9;
     const layout = beats.map(b => layoutBeat(b, fs, acc, defFont, defWeight, o.aliasMap,
-      b.rotReq ? Math.min(maxLineWide, maxLineRotated) : maxLineWide, P));
+      b.rotReq ? Math.min(maxLineWide, maxLineRotated) : maxLineWide, P, align));
+    /* Widest glyph box across all beats: left/right alignment shares one axis and
+       the whole block stays optically centred in the frame. */
+    const blockW = Math.max(...layout.map(l => Math.max(0, l.w - 2 * (l.pad || 0))));
 
     /* timeline first – rotation events are keyed to beat start times */
     let t = 0.25; for (const b of beats) { b.start = t; t += b.dur + 0.06; }
@@ -480,7 +490,7 @@ export class Engine {
       g.fillStyle = g.createPattern(n, "repeat"); g.fillRect(0, 0, W, H);
       g.globalCompositeOperation = "source-over"; g.globalAlpha = 1; }
     this.lastDrawT = 0;
-    this.prog = { beats, layout, bg, P, W, H, total: t + 0.6, acc, events, defFont, defWeight, depth };
+    this.prog = { beats, layout, bg, P, W, H, total: t + 0.6, acc, events, defFont, defWeight, depth, align, blockW };
     return this.prog;
   }
 
@@ -529,6 +539,12 @@ export class Engine {
     };
     const yOf = {};
     for (const b of live) yOf[b.index] = stackY(b.index, layout[b.index]);
+    const align = prog.align || "center";
+    const blockW = prog.blockW || 0;
+    /* Sprite centre for a beat under the current alignment. The glyph box sits
+       `pad` inside the sprite, so subtract it to align the ink, not the padding. */
+    const xOf = L => align === "left" ? -blockW / 2 + L.w / 2 - (L.pad || 0)
+      : align === "right" ? blockW / 2 - L.w / 2 + (L.pad || 0) : 0;
     for (const b of live) {
       const L = layout[b.index], age = t - b.start;
       const y = yOf[b.index];
@@ -566,16 +582,18 @@ export class Engine {
       const a = beatAngle(t, b, events);
       const ca = Math.cos(a * Math.PI / 180), sa = Math.sin(a * Math.PI / 180);
       const era = eraInfo(b, events);
-      let px = 0, py = y + dy;               /* each line's anchor is its own centre */
+      const bx = xOf(L);
+      let px = bx, py = y + dy;              /* each line's anchor is its own centre */
       if (era) {
         const Lf = layout[era.anchor] || L;
         const yPivot = stackY(era.anchor, Lf);
         const pad = Lf.pad || 0;
         const off = Lf.fs * 0.55;                           /* 45°: equal dx/dy */
         const bottomY = yPivot + Lf.h / 2 - pad;            /* bottom edge of the glyphs */
-        const pivotX = a > 0 ? Lf.w / 2 - pad + off : -Lf.w / 2 + pad - off;
+        const bxF = xOf(Lf);
+        const pivotX = bxF + (a > 0 ? Lf.w / 2 - pad + off : -Lf.w / 2 + pad - off);
         const pivotY = bottomY + off;
-        const dx0 = -pivotX, dy0 = (y + dy) - pivotY;
+        const dx0 = bx - pivotX, dy0 = (y + dy) - pivotY;
         px = pivotX + dx0 * ca - dy0 * sa;
         py = pivotY + dx0 * sa + dy0 * ca;
       }

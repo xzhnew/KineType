@@ -577,6 +577,20 @@ const SCRIPT_TOOLS = [
   { id: 'break', icon: 'tb-break', label: '↵', title: '强制换行', run: () => insertScriptText('|') },
 ]
 
+/* Horizontal alignment of the rendered lines. Layout lives in the engine;
+   these buttons only flip state.align. */
+const ALIGN_MODES = [
+  { label: '左对齐', value: 'left', icon: 'align-left' },
+  { label: '居中', value: 'center', icon: 'align-center' },
+  { label: '右对齐', value: 'right', icon: 'align-right' },
+]
+
+function setAlign(value) {
+  state.align = value
+  const item = ALIGN_MODES.find(a => a.value === value)
+  flashScriptMsg(`对齐：${item ? item.label : value}`)
+}
+
 /* Traditional palette picks for quick text coloring. */
 const TEXT_COLORS = ['#c04851', '#dfc243', '#2bae85', '#1661ab', '#894e54', '#eef7f2']
 
@@ -595,7 +609,7 @@ let ctxSavedSelection = { start: 0, end: 0 }
 
 const ctxMenu = ref({ open: false, x: 0, y: 0 })
 const CTX_MENU_WIDTH = 240
-const CTX_MENU_HEIGHT = 500
+const CTX_MENU_HEIGHT = 640
 
 /* Clipboard group mirrors the native Windows menu; the second group applies
    the same commands as the toolbar, to the current selection only. */
@@ -614,6 +628,10 @@ const CTX_MENU = [
   { id: 'mark', icon: 'highlight', label: '高亮', run: () => wrapScriptSelection('[', ']') },
   { id: 'break', icon: 'break', label: '强制换行', run: () => insertScriptText('|') },
   { id: 'rotate', icon: 'rotate', label: '整块旋转', run: () => wrapScriptSelection('{转}') },
+  { sep: true },
+  { id: 'alignLeft', icon: 'align-left', label: '左对齐', run: () => setAlign('left') },
+  { id: 'alignCenter', icon: 'align-center', label: '居中', run: () => setAlign('center') },
+  { id: 'alignRight', icon: 'align-right', label: '右对齐', run: () => setAlign('right') },
 ]
 
 /** Restores the last editor snapshot taken before an edit or typing burst. */
@@ -765,6 +783,15 @@ async function onFontFilePicked(event) {
           <Button v-for="c in TEXT_COLORS" :key="c" class="wf-color-btn"
             :ToolTipService.ToolTip="c" @Click="applyTextColor(c)">
             <span class="wf-color-dot" :style="{ background: c }" />
+          </Button>
+        </div>
+
+        <div class="wf-align-row">
+          <span class="wf-align-label">对齐</span>
+          <Button v-for="mode in ALIGN_MODES" :key="mode.value"
+            class="wf-align-btn" :class="{ active: state.align === mode.value }"
+            :title="mode.label" @Click="setAlign(mode.value)">
+            <AppIcon :name="mode.icon" :size="16" />
           </Button>
         </div>
 

@@ -86,6 +86,7 @@ const DEFAULTS = {
   defFont: 'Microsoft YaHei',
   defWeight: 700,
   rotDir: 'cw',
+  align: 'center',   /* 'left' | 'center' | 'right' — horizontal alignment of every line */
   bg1: PRESETS.guofeng.sug[0],
   bg2: PRESETS.guofeng.sug[1],
   accent: PRESETS.guofeng.sug[2],
@@ -563,5 +564,6 @@ export function engineOptions() {
     defWeight: state.defWeight,
     aliasMap: aliasMap(),
     rotDir: state.rotDir,
+    align: state.align,
   }
 }
