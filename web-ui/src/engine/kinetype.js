@@ -216,12 +216,33 @@ export function parseScript(text, seg, cps) {
   }));
 }
 
+/* Actual painted bounds of a sprite. Aligning on the text origin leaves a
+   font-size-dependent left bearing, which makes different-sized lines look
+   ragged even when their origins match. */
+function inkBounds(c, g) {
+  const w = c.width, h = c.height;
+  const d = g.getImageData(0, 0, w, h).data;
+  let minX = w, maxX = -1, minY = h, maxY = -1;
+  for (let y = 0; y < h; y++) {
+    const row = y * w * 4;
+    for (let x = 0; x < w; x++) {
+      if (d[row + x * 4 + 3] > 8) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+  return maxX < 0 ? null : { l: minX, r: maxX + 1, t: minY, b: maxY + 1 };
+}
+
 /* ================= layout: beat -> sprite ================= */
 /* Every key carries its own style; the sprite is the beat's line box in the
    block's LOCAL frame (the block as a whole may be rotated later).
    `maxLine` is the longest a line may get — chosen so the line still fits after
    the block rotates 90°, where it runs along the screen's short side. */
-function layoutBeat(beat, fsBase, acc, defFont, defWeight, aliasMap, maxLine, P, align) {
+function layoutBeat(beat, fsBase, acc, defFont, defWeight, aliasMap, maxLine, P, align, bandW = 0) {
   const probe = document.createElement("canvas").getContext("2d");
   const maxW = maxLine;
   const fontOf = (k, px) => {
@@ -253,6 +274,24 @@ function layoutBeat(beat, fsBase, acc, defFont, defWeight, aliasMap, maxLine, P,
   let fit = 1, rows = wrap(fsBase);
   const widest = r => Math.max(...r.map(x => x.w), 0);
   while ((widest(rows) > maxW || rows.length > 3) && fit > 0.45) { fit *= 0.9; rows = wrap(fsBase * fit); }
+  /* Left/right alignment asks for one deliberate size per line instead of the
+     old optical centring: fewer characters get a wider band (80%), longer
+     lines a narrower one (60%), so every line lands near the same visual
+     length without being forced to an identical width. */
+  if (bandW) {
+    const chars = beat.keys.reduce((n, k) => n + (k.text ? k.text.replace(/\s/g, "").length : 0), 0);
+    const ratio = 0.80 - 0.20 * clamp((chars - 4) / 16, 0, 1);
+    const target = Math.min(maxW, bandW * ratio);
+    let f = clamp(target / Math.max(1, widest(rows)), 0.45, 2.4);
+    let rr = wrap(fsBase * f);
+    let guard = 0;
+    while ((widest(rr) > target * 1.12 || rr.length > 3) && f > 0.45 && guard++ < 10) {
+      f *= 0.94;
+      rr = wrap(fsBase * f);
+    }
+    fit = f;
+    rows = rr;
+  }
   if (beat.keys.length <= 2 && rows.length === 1 && rows[0].w < maxW * 0.55) {
     const big = Math.min(1.5, (maxW * 0.78) / rows[0].w);
     const rr = wrap(fsBase * big);
@@ -333,7 +372,9 @@ function layoutBeat(beat, fsBase, acc, defFont, defWeight, aliasMap, maxLine, P,
     if (P.glow && useFx && !shadowOff) g.restore();
     g.shadowColor = "transparent"; g.shadowBlur = 0; g.shadowOffsetY = 0;
   }
-  return { img: c, w: c.width, h: c.height, ay: (lastBase) / c.height, fs: fsBase * fit, pad };
+  const ink = inkBounds(c, g) || { l: pad, r: c.width - pad, t: pad, b: c.height - pad };
+  return { img: c, w: c.width, h: c.height, ay: (lastBase) / c.height, fs: fsBase * fit, pad,
+    inkL: ink.l, inkR: ink.r, inkT: ink.t, inkB: ink.b };
 }
 
 /* ================= line rotation ================= */
@@ -456,10 +497,11 @@ export class Engine {
        only those need the short-side cap. */
     const maxLineRotated = H * 0.9;
     const layout = beats.map(b => layoutBeat(b, fs, acc, defFont, defWeight, o.aliasMap,
-      b.rotReq ? Math.min(maxLineWide, maxLineRotated) : maxLineWide, P, align));
+      b.rotReq ? Math.min(maxLineWide, maxLineRotated) : maxLineWide, P, align,
+      align === "center" ? 0 : (b.rotReq ? maxLineRotated : W)));
     /* Widest glyph box across all beats: left/right alignment shares one axis and
        the whole block stays optically centred in the frame. */
-    const blockW = Math.max(...layout.map(l => Math.max(0, l.w - 2 * (l.pad || 0))));
+    const blockW = Math.max(...layout.map(l => Math.max(0, (l.inkR || l.w) - (l.inkL || 0))));
 
     /* timeline first – rotation events are keyed to beat start times */
     let t = 0.25; for (const b of beats) { b.start = t; t += b.dur + 0.06; }
@@ -543,8 +585,14 @@ export class Engine {
     const blockW = prog.blockW || 0;
     /* Sprite centre for a beat under the current alignment. The glyph box sits
        `pad` inside the sprite, so subtract it to align the ink, not the padding. */
-    const xOf = L => align === "left" ? -blockW / 2 + L.w / 2 - (L.pad || 0)
-      : align === "right" ? blockW / 2 - L.w / 2 + (L.pad || 0) : 0;
+    /* `s` is the depth/enter scale applied later. Scaling happens around the
+       line centre, so compensate here to keep the aligned edge pinned to the
+       axis instead of drifting with font size. */
+    const xOf = (L, s = 1) => {
+      const l = L.inkL ?? L.pad ?? 0, r = L.inkR ?? (L.w - (L.pad || 0));
+      return align === "left" ? -blockW / 2 + s * (L.w / 2 - l)
+        : align === "right" ? blockW / 2 - s * (r - L.w / 2) : 0;
+    };
     for (const b of live) {
       const L = layout[b.index], age = t - b.start;
       const y = yOf[b.index];
@@ -582,16 +630,18 @@ export class Engine {
       const a = beatAngle(t, b, events);
       const ca = Math.cos(a * Math.PI / 180), sa = Math.sin(a * Math.PI / 180);
       const era = eraInfo(b, events);
-      const bx = xOf(L);
+      const bx = xOf(L, sc);
       let px = bx, py = y + dy;              /* each line's anchor is its own centre */
       if (era) {
         const Lf = layout[era.anchor] || L;
         const yPivot = stackY(era.anchor, Lf);
         const pad = Lf.pad || 0;
         const off = Lf.fs * 0.55;                           /* 45°: equal dx/dy */
-        const bottomY = yPivot + Lf.h / 2 - pad;            /* bottom edge of the glyphs */
         const bxF = xOf(Lf);
-        const pivotX = bxF + (a > 0 ? Lf.w / 2 - pad + off : -Lf.w / 2 + pad - off);
+        const leftEdge = bxF - Lf.w / 2 + (Lf.inkL ?? pad);
+        const rightEdge = bxF - Lf.w / 2 + (Lf.inkR ?? (Lf.w - pad));
+        const bottomY = yPivot - Lf.h / 2 + (Lf.inkB ?? (Lf.h - pad));
+        const pivotX = a > 0 ? rightEdge + off : leftEdge - off;
         const pivotY = bottomY + off;
         const dx0 = bx - pivotX, dy0 = (y + dy) - pivotY;
         px = pivotX + dx0 * ca - dy0 * sa;
