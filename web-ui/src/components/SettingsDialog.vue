@@ -362,7 +362,7 @@ defineExpose({ open })
               Content="KineType Studio"
               FontSize="14"
               Padding="0"
-              NavigateUri="https://github.com/Furry-Xiyi/WinUIonWeb" />
+              NavigateUri="https://github.com/xzhnew/KineType" />
           </div>
           <div class="sd-row-sub">
             快闪字幕生成器「倒鸭子」基于
