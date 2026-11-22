@@ -1,0 +1,56 @@
+# Same look, latin script. Kinetype auto-detects latin text and switches faces,
+# word rhythm and reading speed.
+
+Hello? Yes, this is **the insurance company**.
+
+A [backward duck]? I am sorry, a duck that is… backward?
+
+It [fell over]. It is lying on the road.
+
+Sir, could you describe the scene for me?
+
+My car hit a duck and now it is [lying] on its side.
+
+And how is the duck doing?
+
+It is [on its side]. But it is [not dead].
+
+So what exactly are you claiming for?
+
+The duck's [medical bills], obviously.
+
+Sir, ducks are not insured with us.
+
+Then what do you insure?
+
+We insure [cars].
+
+But my car is damaged too.
+
+We cover the car. The duck, we really cannot.
+
+Then what is the duck?
+
+Let us call it a [third party]. Roughly.
+
+Do you cover third parties?
+
+Sir, a third party means a **person**.
+
+So the duck is not a person?
+
+You are correct. It is genuinely not a person.
+
+Then who pays for my duck?
+
+Might I suggest you contact the duck's [next of kin].
+
+Its next of kin?
+
+Yes. The [mother duck].
+
+Fine. I will do that.
+
+Have a pleasant day. Goodbye.
+
+Click.

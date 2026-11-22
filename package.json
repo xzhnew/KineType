@@ -1,0 +1,14 @@
+{
+  "name": "kinetype",
+  "version": "公厕版26.11.1",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "description": "Turn a script into a waterfall / rapid-flash kinetic typography video. `npm run dev` starts the WinUI web UI.",
+  "scripts": {
+    "dev": "npm --prefix web-ui run dev",
+    "build": "npm --prefix web-ui run build",
+    "preview": "npm --prefix web-ui run preview",
+    "smoke": "node web-ui/scripts/engine-smoke.mjs",
+    "shot": "node web-ui/scripts/shot.mjs"
+  }
+}

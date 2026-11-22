@@ -1,0 +1,809 @@
+/* ============================================================
+   Kinetype × WinUIonWeb —— 主题
+   背景一律用 WinUIonWeb 官方默认（不自行造色）：
+     浅色 = #f3f3f3 底 / #f9f9f9 顶层   深色 = #202020 底 / #282828 顶层
+   强调色来自「中国传统颜色」谱（page.hcyhub.com）：
+     景泰蓝 #2775b6   睛蓝 #5698c3（关"跟随系统"时的回落色）
+   ============================================================ */
+
+/* ---------- 系统强调色（跟随 Windows 个性化颜色） ----------
+   CSS cannot read the Windows personalization color: measured on Edge, the
+   system color `AccentColor` is a hard-coded #0075ff on every machine. The
+   real value arrives from the local bridge in vite.config.js and is written
+   as inline properties by store.js (base + the eight-step Windows ramp).
+   The rules below are the fallback used when no bridge is reachable. */
+:root {
+  --winui-system-accent-color: #2775b6;        /* 默认：景泰蓝 */
+  --winui-system-accent-color-dark: #5698c3;   /* 深色主题默认：睛蓝 */
+}
+@supports (color: AccentColor) {
+  :root {
+    --winui-system-accent-color: AccentColor;
+    --winui-system-accent-color-dark: color-mix(in srgb, AccentColor 72%, white);
+  }
+}
+
+/* ---------- 浅色主题（月白蓝底） ---------- */
+html.theme-light,
+.win-theme-scope.theme-light {
+  --accent-base: var(--winui-system-accent-color, #2775b6);
+  --accent-hover: color-mix(in srgb, var(--accent-base) 90%, transparent);
+  --accent-pressed: color-mix(in srgb, var(--accent-base) 80%, transparent);
+  --accent-fill-disabled: #00000038;
+  --accent-aa-fill: color-mix(in srgb, var(--accent-base) 72%, black);
+  --accent-aa-text: var(--winui-system-accent-text-light, #fff);
+  --accent-text: var(--winui-system-accent-text-light, #fff);
+  --accent-text-secondary: var(--winui-system-accent-text-secondary-light, #ffffffb3);
+  --accent-text-fill-color-primary: color-mix(in srgb, var(--accent-base) 68%, black);
+  --accent: var(--accent-base);
+
+  --SystemAccentColor: var(--accent-base);
+  --SystemAccentColorLight1: color-mix(in srgb, var(--SystemAccentColor) 80%, white);
+  --SystemAccentColorLight2: color-mix(in srgb, var(--SystemAccentColor) 60%, white);
+  --SystemAccentColorLight3: color-mix(in srgb, var(--SystemAccentColor) 40%, white);
+  --SystemAccentColorDark1: color-mix(in srgb, var(--SystemAccentColor) 86%, black);
+  --SystemAccentColorDark2: color-mix(in srgb, var(--SystemAccentColor) 68%, black);
+  --SystemAccentColorDark3: color-mix(in srgb, var(--SystemAccentColor) 50%, black);
+
+  --AccentFillColorDefaultBrush: var(--accent-base);
+  --AccentFillColorSecondaryBrush: var(--accent-hover);
+  --AccentFillColorTertiaryBrush: var(--accent-pressed);
+  --AccentTextFillColorPrimaryBrush: var(--accent-text-fill-color-primary);
+  --AccentTextFillColorSecondaryBrush: var(--accent-base);
+  --AccentTextFillColorTertiaryBrush: var(--accent-hover);
+  --AccentTextFillColorDisabledBrush: var(--accent-fill-disabled);
+  --SystemControlBackgroundAccentBrush: var(--SystemAccentColor);
+  --TextOnAccentFillColorPrimaryBrush: var(--winui-system-accent-text-light, #fff);
+  --TextOnAccentFillColorSecondaryBrush: var(--accent-text-secondary);
+  --TextOnAccentFillColorDisabledBrush: var(--winui-system-accent-text-light, #fff);
+  /* 弹出菜单底色：不透明，不透出下层内容 */
+  --MenuBackground: #ffffff;
+  /* 窗体底色：跟随 WinUIonWeb 官方默认（浅色 #f3f3f3），不覆盖 */
+}
+
+/* ---------- 深色主题 ---------- */
+html.theme-dark,
+.win-theme-scope.theme-dark {
+  --accent-base: var(--winui-system-accent-color-dark, #5698c3);
+  --accent-hover: color-mix(in srgb, var(--accent-base) 90%, transparent);
+  --accent-pressed: color-mix(in srgb, var(--accent-base) 80%, transparent);
+  --accent-fill-disabled: #ffffff38;
+  --accent-aa-fill: var(--SystemAccentColorLight2, #8cbcdc);
+  --accent-aa-text: var(--winui-system-accent-text-dark, #101014);
+  --accent-text: var(--winui-system-accent-text-dark, #101014);
+  --accent-text-secondary: var(--winui-system-accent-text-secondary-dark, #101014b3);
+  --accent-text-fill-color-primary: var(--accent-base);
+  --accent: var(--accent-base);
+
+  --SystemAccentColor: var(--accent-base);
+  --SystemAccentColorLight1: color-mix(in srgb, var(--SystemAccentColor) 82%, white);
+  --SystemAccentColorLight2: color-mix(in srgb, var(--SystemAccentColor) 64%, white);
+  --SystemAccentColorLight3: color-mix(in srgb, var(--SystemAccentColor) 46%, white);
+  --SystemAccentColorDark1: color-mix(in srgb, var(--SystemAccentColor) 86%, black);
+  --SystemAccentColorDark2: color-mix(in srgb, var(--SystemAccentColor) 68%, black);
+  --SystemAccentColorDark3: color-mix(in srgb, var(--SystemAccentColor) 50%, black);
+
+  --AccentFillColorDefaultBrush: var(--accent-base);
+  --AccentFillColorSecondaryBrush: var(--accent-hover);
+  --AccentFillColorTertiaryBrush: var(--accent-pressed);
+  --AccentTextFillColorPrimaryBrush: var(--accent-text-fill-color-primary);
+  --AccentTextFillColorSecondaryBrush: var(--SystemAccentColorLight2);
+  --AccentTextFillColorTertiaryBrush: var(--SystemAccentColorLight3);
+  --AccentTextFillColorDisabledBrush: var(--accent-fill-disabled);
+  --SystemControlBackgroundAccentBrush: var(--SystemAccentColor);
+  --TextOnAccentFillColorPrimaryBrush: var(--winui-system-accent-text-dark, #101014);
+  --TextOnAccentFillColorSecondaryBrush: var(--accent-text-secondary);
+  --TextOnAccentFillColorDisabledBrush: var(--winui-system-accent-text-dark, #101014);
+  /* 弹出菜单底色：不透明，贴近 WinUI 原生菜单（图3） */
+  --MenuBackground: #2b2b2b;
+  /* 窗体底色：跟随 WinUIonWeb 官方默认（深色 #202020），不覆盖 */
+}
+
+/* ---------- 主题作用域（弹窗 / Flyout） ----------
+   WinUIonWeb repeats its palette on `.win-theme-scope.theme-*`, the wrapper it
+   puts around portaled surfaces (ContentDialog, flyouts), and there it hard-codes
+   `--AccentFillColorDefaultBrush: #4cc2ff`. That selector carries one more class
+   than `html.theme-dark`, so a dialog kept the stock blue no matter what the root
+   said. Each theme block above therefore also targets the scope: same
+   specificity as the library's rule, later in the cascade. */
+
+/* ---------- 图标（内联 SVG） ---------- */
+/* 图标盒子：撑满传入尺寸，SVG 铺满，颜色跟随 currentColor */
+.app-icon { display: inline-grid; place-items: center; flex: 0 0 auto; line-height: 1; }
+.app-icon > svg { width: 100%; height: 100%; display: block; }
+/* Two-tone glyphs: the accent group follows the theme accent, the rest keeps
+   currentColor. CSS wins over the SVG's stroke presentation attribute, so
+   icons only need the class on the parts that should be coloured. */
+.app-icon svg .wf-accent { stroke: var(--accent-base, #2775b6); }
+/* Filled glyphs (font-extracted outlines) need fill, not stroke, to follow
+   the theme accent. A presentation attribute cannot resolve var(), so this
+   must stay a CSS rule. */
+.app-icon svg .wf-fill-accent { fill: var(--accent-base, #2775b6); }
+
+/* ============ 应用布局（WinUI 风格） ============ */
+html, body { height: 100%; margin: 0; }
+body {
+  font-family: "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  background: var(--SolidBackgroundFillColorBaseBrush, #f3f3f3);
+  color: var(--TextFillColorPrimaryBrush, #1a1a1a);
+  overflow: hidden;
+}
+#app { height: 100vh; }
+
+/* ---------- 统一尺寸标准 ---------- */
+/* One ramp for the whole shell: captions 12, body 14, title 16, code 13.
+   Bars share a 56 px height so the window reads top/bottom balanced. */
+:root {
+  --wf-titlebar-height: 56px;
+  --wf-transport-height: 56px;
+  --wf-control-height: 32px;
+  --wf-font-caption: 12px;
+  --wf-font-body: 14px;
+  --wf-font-code: 13px;
+  --wf-font-title: 16px;
+}
+
+.wf-root {
+  display: grid;
+  grid-template-rows: var(--wf-titlebar-height) 1fr;
+  height: 100%;
+}
+
+/* ---------- 标题栏 ---------- */
+/* 品牌图标 / 应用名 / 副标题 / 主题按钮全部按同一条水平中线对齐：
+   行高统一为 1、容器 align-items:center，避免文字基线错位。 */
+.wf-titlebar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 0 16px;
+  /* 与侧栏同底色，消除"一块灰一块黑" */
+  background: var(--SolidBackgroundFillColorBaseBrush, var(--LayerFillColorDefault, transparent));
+  /* 分界线保留 1px 占位以维持各区域对齐，但颜色透明不显示（图5：不要可见线条） */
+  border-bottom: 1px solid transparent;
+}
+.wf-titlebar .wf-brand {
+  display: flex; align-items: center; gap: 8px;
+  font-size: var(--wf-font-title); font-weight: 600; letter-spacing: .2px;
+  line-height: 1;
+}
+/* Just the glyph — the mark used to sit in a filled square, which made the
+   titlebar look busier than the rest of the chrome. Colour follows the theme
+   text so it stays legible on both light and dark surfaces. */
+.wf-titlebar .wf-brand .mark {
+  display: inline-flex;
+  color: var(--TextFillColorPrimaryBrush, #1a1a1a);
+}
+.wf-titlebar .wf-sub {
+  color: var(--TextFillColorTertiaryBrush, #616161);
+  font-size: var(--wf-font-caption);
+  line-height: 1;
+}
+.wf-titlebar .spacer { flex: 1; }
+/* 导出名称组合：绝对定位到标题栏正中（= 窗口正中），不受左右元素宽度影响。
+   红色标签用胭脂红，与「导出」语义色一致。 */
+.wf-titlebar .wf-export-group {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+/* 输入框：用统一控件高度，WinUI TextBox 默认更高。 */
+.wf-titlebar .wf-export-name,
+.wf-titlebar .wf-export-name.win-textbox {
+  width: 168px;
+  height: var(--wf-control-height);
+  min-height: var(--wf-control-height);
+}
+.wf-titlebar .wf-export-name input {
+  font-size: var(--wf-font-body);
+}
+/* 标题栏图标按钮：与控件同高；默认透明，hover 才淡灰。 */
+.wf-titlebar .wf-theme-btn.win-button,
+.wf-titlebar .wf-theme-btn {
+  background: transparent;
+  border-color: transparent;
+  width: var(--wf-control-height); min-width: var(--wf-control-height);
+  height: var(--wf-control-height);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.wf-titlebar .wf-theme-btn .win-button-content-presenter {
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+.wf-titlebar .wf-theme-btn:hover .win-button-content-presenter {
+  background-color: var(--SubtleFillColorSecondaryBrush, rgba(255,255,255,0.06)) !important;
+  border-color: transparent !important;
+}
+
+/* Expander header icons: WinUIonWeb pins 20 px, which reads smaller than the
+   24 px AppIcon box used everywhere else. Normalise both to one optical size. */
+.wf-pane .win-expander-header-icon {
+  width: 24px; max-width: 24px; height: 24px; max-height: 24px;
+  margin: 0 10px 0 0;
+}
+.wf-pane .win-expander-header-icon > svg { width: 100%; height: 100%; display: block; }
+
+/* ---------- 主体两栏 ---------- */
+.wf-body { display: grid; grid-template-columns: 404px 1fr; min-height: 0; }
+
+.wf-sidebar {
+  min-height: 0; overflow: hidden; display: flex; flex-direction: column;
+  background: var(--SolidBackgroundFillColorBaseBrush);
+  /* 与标题栏、传输条的分界线统一透明，不再显示可见竖线 */
+  border-right: 1px solid transparent;
+}
+.wf-sidebar .wf-scroll { flex: 1; min-height: 0; padding: 14px 16px 10px; }
+.wf-pane { display: flex; flex-direction: column; gap: 4px; }   /* 组间距学 WinUIonWeb：紧凑 */
+
+/* 设置分组：默认透明无框，hover 才灰（学 WinUI 设置左侧导航，图1风格） */
+.wf-card {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: background .15s ease;
+}
+.wf-card:hover {
+  background: var(--SubtleFillColorSecondaryBrush, rgba(255,255,255,0.045));
+  border-color: transparent;
+}
+.wf-card > .wf-card-title {
+  font-size: 12px; font-weight: 600; color: var(--TextFillColorPrimaryBrush, #1a1a1a);
+  display: flex; align-items: center; gap: 6px;
+}
+.wf-card > .wf-card-title .app-icon { color: var(--TextFillColorPrimaryBrush, #1a1a1a); }
+.wf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.wf-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.wf-switch-cell { display: flex; flex-direction: column; gap: 4px; justify-content: flex-start; }
+.wf-switch-cell .win-toggle-switch { margin: 0; }
+
+.wf-hint {
+  color: var(--TextFillColorTertiaryBrush, #616161);
+  font-size: 12px; line-height: 1.7;
+}
+.wf-hint code, .wf-cheat code {
+  font-family: Consolas, "Cascadia Mono", monospace;
+  background: var(--ControlFillColorDefaultBrush, rgba(255,255,255,0.5));
+  padding: 0 4px; border-radius: 3px;
+}
+
+/* ---------- 文案编辑器（语法高亮 + 快捷格式栏） ---------- */
+/* 结构：<pre> 显示高亮文本，透明 <textarea> 叠在上面负责输入与光标。
+   两者字体/内边距/内容宽度必须完全一致，否则文字会错位。 */
+.wf-script-tools {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;   /* one centred row, matching the editor below */
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+/* WinUI Button compacted into a 26 px icon button: transparent surface,
+   hover-only background, no border. */
+.wf-script-tools .wf-tool-btn.win-button,
+.wf-script-tools .wf-tool-btn {
+  width: 26px;
+  min-width: 26px;
+  min-height: 26px;
+  height: 26px;
+  padding: 0 !important;
+  background: transparent;
+  border-color: transparent;
+}
+.wf-script-tools .wf-tool-btn .win-button-content-presenter {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  border-radius: 4px;
+}
+.wf-script-tools .wf-tool-btn:hover .win-button-content-presenter {
+  background-color: var(--SubtleFillColorSecondaryBrush, rgba(255, 255, 255, 0.08)) !important;
+}
+.wf-tool-icon { color: var(--TextFillColorSecondaryBrush, #6b6b6b); }
+.wf-script-tools .wf-tool-btn:hover .wf-tool-icon { color: var(--TextFillColorPrimaryBrush, #1a1a1a); }
+.wf-tool-label {
+  font-size: var(--wf-font-body);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--TextFillColorSecondaryBrush, #6b6b6b);
+}
+.wf-script-tools .wf-tool-btn:hover .wf-tool-label {
+  color: var(--TextFillColorPrimaryBrush, #1a1a1a);
+}
+.wf-tool-italic { font-style: italic; }
+
+/* Color swatches: an inline row under the toolbar (never clipped by the
+   Expander content), each swatch a compact WinUI button. */
+.wf-script-colors {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 6px;
+  padding: 4px 2px;
+}
+.wf-script-colors .wf-color-btn.win-button,
+.wf-script-colors .wf-color-btn {
+  min-width: 26px;
+  min-height: 26px;
+  height: 26px;
+  width: 26px;
+  padding: 0 !important;
+  background: transparent;
+  border-color: transparent;
+}
+.wf-script-colors .wf-color-btn .win-button-content-presenter {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+.wf-color-dot {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid var(--CardStrokeColorDefaultBrush, rgba(0, 0, 0, 0.25));
+}
+.wf-script-colors .wf-color-btn:hover .wf-color-dot { transform: scale(1.12); }
+
+/* Editor context menu: WinUI menu surface, fixed to the cursor. */
+.wf-ctx-menu {
+  position: fixed;
+  z-index: 6000;
+  width: 240px;
+  padding: 4px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background: var(--MenuBackground, var(--SolidBackgroundFillColorBaseBrush, #2b2b2b));
+  border: 1px solid var(--ControlStrokeColorDefaultBrush, rgba(0, 0, 0, 0.2));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32), 0 2px 6px rgba(0, 0, 0, 0.22);
+}
+.wf-ctx-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--TextFillColorPrimaryBrush, #1a1a1a);
+  font: inherit;
+  font-size: var(--wf-font-body);
+  text-align: left;
+  cursor: default;
+}
+.wf-ctx-item:hover {
+  background: var(--SubtleFillColorSecondaryBrush, rgba(255, 255, 255, 0.08));
+}
+.wf-ctx-icon {
+  color: var(--TextFillColorSecondaryBrush, #616161);
+}
+.wf-ctx-label { flex: 1; min-width: 0; }
+.wf-ctx-hint {
+  color: var(--TextFillColorTertiaryBrush, #767676);
+  font-size: var(--wf-font-caption);
+}
+.wf-ctx-sep {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--DividerStrokeColorDefaultBrush, rgba(128, 128, 128, 0.3));
+}
+
+.wf-script-editor {
+  position: relative;
+  height: 210px;
+  border-radius: 4px;
+  border: 1px solid var(--ControlStrokeColorDefaultBrush, rgba(0, 0, 0, 0.12));
+  background: var(--ControlFillColorDefaultBrush, rgba(255, 255, 255, 0.06));
+  overflow: hidden;
+}
+.wf-script-hl,
+.wf-script-ta {
+  margin: 0;
+  /* 右侧多留 6px 给自绘滚动条，两层必须一致 */
+  padding: 10px 18px 10px 12px;
+  font-family: Consolas, "Cascadia Mono", "Microsoft YaHei", monospace;
+  font-size: var(--wf-font-code);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+}
+/* 高亮层：与 textarea 完全重合，不接收指针事件 */
+.wf-script-hl {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--TextFillColorPrimaryBrush, #1a1a1a);
+}
+.wf-script-ta {
+  position: relative;
+  display: block;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  overflow-y: auto;
+  /* 原生滚动条隐藏，改用右侧的 WinUI ScrollBar */
+  scrollbar-width: none;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  caret-color: var(--TextFillColorPrimaryBrush, #1a1a1a);
+}
+.wf-script-ta::-webkit-scrollbar { width: 0; height: 0; }
+.wf-script-ta::placeholder {
+  color: var(--TextFillColorTertiaryBrush, #767676);
+  -webkit-text-fill-color: var(--TextFillColorTertiaryBrush, #767676);
+}
+.wf-script-ta::selection { background: rgba(90, 150, 220, 0.35); }
+
+/* WinUI 滚动条：贴在编辑区右缘 */
+.wf-script-scrollbar {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  bottom: 2px;
+  width: 10px;
+  z-index: 2;
+}
+/* WinUI hides the scrollbar until hover. Keep the thumb permanently visible —
+   a thin 2 px indicator is too easy to miss in this panel — while leaving the
+   native hover/drag visuals untouched. */
+.wf-script-scrollbar .scrollbar-panning-root { opacity: 0 !important; }
+.wf-script-scrollbar .scrollbar-thumb-visual {
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.34) !important;
+  border-radius: 4px !important;
+}
+.wf-script-scrollbar .scrollbar-thumb-visual:hover {
+  background: rgba(255, 255, 255, 0.5) !important;
+}
+html.theme-light .wf-script-scrollbar .scrollbar-thumb-visual {
+  background: rgba(0, 0, 0, 0.26) !important;
+}
+html.theme-light .wf-script-scrollbar .scrollbar-thumb-visual:hover {
+  background: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* 选区不合法的提示 */
+.wf-script-msg {
+  color: var(--hl-weight, #f5a94d);
+  margin: 0 0 4px;
+}
+
+/* 高亮 token（v-html 生成，必须是全局样式）。
+   标记按类型着色，取中国传统色；深色主题用提亮版保证可读。 */
+html.theme-light {
+  --hl-color: #c04851;    /* 玉红 */
+  --hl-size: #a8821c;     /* 蒿黄（加深） */
+  --hl-font: #2bae85;     /* 铜绿 */
+  --hl-weight: #c96f0a;   /* 杏黄（加深） */
+  --hl-stroke: #1772b4;   /* 群青 */
+  --hl-spacing: #1661ab;  /* 靛青 */
+  --hl-rotate: #a7535a;   /* 满江红 */
+  --hl-shadow: #894e54;   /* 烟红 */
+}
+html.theme-dark {
+  --hl-color: #e58a8f;
+  --hl-size: #e5c85c;
+  --hl-font: #4fd0a5;
+  --hl-weight: #f5a94d;
+  --hl-stroke: #5aa0d8;
+  --hl-spacing: #6fa8e0;
+  --hl-rotate: #d08289;
+  --hl-shadow: #c0848c;
+}
+.hl-tag { color: var(--TextFillColorTertiaryBrush, #7a7a7a); }
+.hl-color { color: var(--hl-color); }
+.hl-size { color: var(--hl-size); }
+.hl-font { color: var(--hl-font); }
+.hl-weight { color: var(--hl-weight); }
+.hl-stroke { color: var(--hl-stroke); }
+.hl-spacing { color: var(--hl-spacing); }
+.hl-rotate { color: var(--hl-rotate); }
+.hl-shadow { color: var(--hl-shadow); }
+.hl-close { color: var(--TextFillColorTertiaryBrush, #7a7a7a); opacity: 0.75; }
+.hl-comment { color: var(--TextFillColorTertiaryBrush, #7a7a7a); font-style: italic; }
+.hl-mark { color: var(--accent-base, #2775b6); }
+.hl-bold { font-weight: 700; }
+
+/* ---------- 舞台 ---------- */
+.wf-stage-wrap { display: grid; grid-template-rows: 1fr auto; min-width: 0; min-height: 0; }
+.wf-stage {
+  position: relative; min-height: 0;
+  display: flex; align-items: center; justify-content: center;
+  /* 收敛到与全局同底色，只留极轻微同色渐变让画布有层次，不再一块灰一块黑 */
+  background: var(--SolidBackgroundFillColorBaseBrush, #202020);
+  overflow: hidden;
+}
+.wf-phone { position: relative; box-shadow: 0 12px 34px rgba(0,0,0,.34); border-radius: 4px; overflow: hidden; }
+.wf-phone canvas { display: block; width: 100%; height: 100%; }
+
+.wf-rec {
+  position: absolute; top: 14px; left: 14px; z-index: 5;
+  display: none; align-items: center; gap: 7px;
+  padding: 5px 12px; border-radius: 20px;
+  background: rgba(0,0,0,.62); color: #fff; font-size: 12px;
+  backdrop-filter: blur(4px);
+}
+.wf-rec.on { display: flex; }
+.wf-rec i {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #f03f24;              /* 胭脂红 */
+  animation: wf-blink 1s infinite;
+}
+@keyframes wf-blink { 50% { opacity: .2; } }
+
+/* ---------- 底部传输条 ---------- */
+.wf-transport {
+  display: flex; align-items: center; gap: 12px;
+  height: var(--wf-transport-height);
+  box-sizing: border-box;
+  padding: 0 18px;
+  /* 与侧栏、标题栏统一底色 */
+  background: var(--SolidBackgroundFillColorBaseBrush, var(--LayerFillColorDefault, transparent));
+  /* 分界线透明不显示，保留 1px 占位与其他边界对齐 */
+  border-top: 1px solid transparent;
+}
+.wf-transport .grow { flex: 1; min-width: 0; }
+/* 播放进度 Slider：占满传输条剩余宽度，滑块圆点在两端也不被裁切 */
+.wf-seek { display: flex; align-items: center; padding: 0 8px; }
+.wf-seek .win-slider-root { width: 100%; }
+.wf-status {
+  font-size: 12px; color: var(--TextFillColorSecondaryBrush, #4b4b4b);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* 录制按钮的暖色（玉红系） */
+.wf-btn-rec.win-button:not(:disabled):hover {
+  color: #c04851;
+}
+html.theme-dark .wf-btn-rec.win-button:not(:disabled):hover { color: #e58a8f; }
+
+/* ---------- 语法速查 ---------- */
+.wf-cheat {
+  font-family: Consolas, "Cascadia Mono", "Microsoft YaHei", monospace;
+  font-size: 12px; line-height: 2.05;
+  color: var(--TextFillColorSecondaryBrush, #4b4b4b);
+  white-space: pre-wrap;
+}
+.wf-cheat b { color: var(--accent-base); font-weight: 600; }
+
+/* ---------- 字体对照表 ---------- */
+.wf-alias-row { display: flex; gap: 8px; align-items: center; }
+.wf-alias-row .win-textbox { flex: 1; min-width: 0; }
+
+/* ---------- 传统色色板（背景色选择用） ---------- */
+.wf-swatch-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.wf-swatch {
+  width: 26px; height: 26px; border-radius: 4px; cursor: pointer;
+  border: 1px solid var(--CardStrokeColorDefaultBrush, rgba(0,0,0,.15));
+  padding: 0;
+}
+.wf-swatch.selected {
+  outline: 2px solid var(--accent-base);
+  outline-offset: 1px;
+}
+.wf-swatch:hover { transform: translateY(-1px); }
+
+/* 颜色行标签 */
+.wf-color-label {
+  font-size: 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+  color: var(--TextFillColorSecondaryBrush, #4b4b4b);
+}
+.wf-color-label .tname { color: var(--TextFillColorTertiaryBrush, #767676); font-size: var(--wf-font-caption); }
+.wf-color-label .wf-numbox { font-size: 12px; vertical-align: middle; }
+.wf-color-label .wf-numbox .win-textbox, .wf-color-label .wf-numbox input { font-size: 12px; }
+
+/* ============ 控件拉伸 / 细节补齐 ============ */
+.wf-pane .win-combo-box, .wf-pane .wf-sel { width: 100%; }
+.wf-pane .win-slider-root { width: 100%; }
+.wf-pane .win-textbox { width: 100%; }
+.wf-pane .win-button { width: auto; }
+.wf-alias-short { max-width: 110px; }
+.wf-alias-row .win-button { min-width: 34px; padding: 5px 9px; }
+.wf-alias-list { display: flex; flex-direction: column; gap: 8px; }
+/* 对照表底部工具栏：添加一行 / 导入字体文件 */
+.wf-alias-tools { display: flex; gap: 8px; align-items: center; margin-top: 2px; }
+.wf-alias-addrow { min-width: 34px; }
+.wf-alias-import .win-button-content-presenter { display: inline-flex; align-items: center; gap: 6px; }
+.wf-font-file-input { display: none; }              /* 隐藏的字体文件选择器 */
+.wf-addfont-msg { color: var(--AccentFillColorDefaultBrush, #2775b6) !important; font-size: 12px; }
+
+/* Expander：默认透明无框，hover 才灰（学 WinUI 设置左侧导航）——去掉图2那种常驻灰底圆角框 */
+.wf-pane .win-expander.wf-exp {
+  width: 100%;
+  --ExpanderHeaderBackground: transparent;
+  --ExpanderHeaderBorderBrush: transparent;
+  --ExpanderHeaderBorderPointerOverBrush: transparent;
+  --ExpanderHeaderBorderPressedBrush: transparent;
+  --ExpanderContentBackground: transparent;
+  --ExpanderContentBorderBrush: transparent;
+  /* chevron 不带方块底（图5） */
+  --ExpanderChevronBackground: transparent;
+  --ExpanderChevronBorderBrush: transparent;
+  --ExpanderChevronBorderPointerOverBrush: transparent;
+  --ExpanderChevronBorderPressedBrush: transparent;
+  --ExpanderChevronPointerOverBackground: transparent;
+  --ExpanderChevronPressedBackground: transparent;
+}
+.wf-pane .win-expander.wf-exp .win-expander-header {
+  min-height: 42px;
+  border-radius: 5px;
+  padding-left: 10px;
+}
+/* 组件默认只在 hover 改边框色，灰底靠 ::before；这里让 ::before 默认透明、hover 才灰 */
+.wf-pane .win-expander.wf-exp .win-expander-header::before { background: transparent !important; }
+.wf-pane .win-expander.wf-exp .win-expander-header:hover::before {
+  background: var(--SubtleFillColorSecondaryBrush, rgba(255,255,255,0.05)) !important;
+}
+/* chevron 直接覆盖：不带方块底（图5） */
+.wf-pane .win-expander.wf-exp .win-expander-chevron { background: transparent !important; border: none !important; }
+/* header 图标：吃我们传入的 SVG，尺寸铺满 20px 槽位，颜色与标题文字一致（不要一下灰一下黑） */
+.wf-pane .win-expander.wf-exp .win-expander-header-icon { color: var(--TextFillColorPrimaryBrush, #1a1a1a); }
+.wf-pane .win-expander.wf-exp .win-expander-header-icon svg { width: 100%; height: 100%; display: block; }
+/* 导航项 hover：左侧强调色指示条（WinUI NavigationView 风格） */
+.wf-pane .win-expander.wf-exp .win-expander-header::after {
+  content: '';
+  position: absolute; left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 16px; border-radius: 2px;
+  background: var(--AccentFillColorDefaultBrush, var(--accent-base, #2775b6));
+  opacity: 0; transition: opacity .12s ease;
+}
+.wf-pane .win-expander.wf-exp .win-expander-header:hover::after { opacity: 1; }
+/* 展开内容紧贴标题行（图3红框：不要大间距），覆盖组件内联的 16px */
+.wf-pane .win-expander.wf-exp .win-expander-content { padding: 2px 10px 8px !important; }
+.wf-exp-body { padding: 0; display: flex; flex-direction: column; gap: 12px; }
+/* 分组内的板块小标题（如"字体"组里的"字体对照表"） */
+.wf-sub-title { font-size: 12px; color: var(--TextFillColorSecondaryBrush, #4b4b4b); margin-top: 2px; }
+.wf-pane pre.wf-cheat { margin: 8px 2px 2px; }
+
+/* 颜色块 */
+.wf-color-block { display: flex; flex-direction: column; gap: 7px; }
+.wf-color-row { display: flex; gap: 8px; align-items: center; }
+.wf-color-row .wf-hex { max-width: 108px; }
+.wf-native-color {
+  appearance: none; -webkit-appearance: none;
+  width: 30px; height: 30px; min-width: 30px;
+  border: 1px solid var(--ControlStrokeColorDefaultBrush, rgba(0,0,0,.12));
+  border-radius: 4px; padding: 0; cursor: pointer;
+  background: transparent;
+}
+.wf-native-color::-webkit-color-swatch-wrapper { padding: 2px; }
+.wf-native-color::-webkit-color-swatch { border: none; border-radius: 2.5px; }
+
+/* 录制按钮红点 */
+.wf-rec-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #f03f24; display: inline-block;
+}
+.wf-btn-rec { white-space: nowrap; }
+.wf-btn-rec:disabled { opacity: .45; }
+
+/* 传输条里的按钮不占满 */
+.wf-transport .win-button { width: auto; white-space: nowrap; }
+.wf-transport .win-progress { width: 100%; }
+
+/* ---------- 侧栏底部：设置项（与上方导航项尺寸同步，图4） ---------- */
+.wf-sidebar-footer {
+  height: var(--wf-transport-height);  /* same height as title/transport bars */
+  box-sizing: border-box;
+  display: flex; align-items: center;
+  padding: 0 16px;
+  border-top: 1px solid transparent;   /* 分界线透明，不显示 */
+  flex: 0 0 auto;
+}
+.wf-settings-nav {
+  position: relative;
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; height: 42px;   /* 与 Expander header 行高一致 */
+  padding: 0 10px;
+  appearance: none; -webkit-appearance: none;
+  border: none; border-radius: 5px;
+  background: transparent;                 /* 默认透明：未选中态 */
+  color: var(--TextFillColorPrimaryBrush, #1a1a1a);
+  font: inherit; font-size: 14px;
+  cursor: pointer;
+  transition: background .12s ease;
+}
+/* hover 或弹窗打开期间（.open）才显示灰框 */
+.wf-settings-nav:hover,
+.wf-settings-nav.open {
+  background: var(--SubtleFillColorSecondaryBrush, rgba(255,255,255,0.05));
+}
+/* WinUI 11 选中指示条：左侧强调色 pill —— 同样只在 hover / .open 显示 */
+.wf-settings-nav::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 16px;
+  border-radius: 2px;
+  background: var(--AccentFillColorDefaultBrush, var(--accent-base, #2775b6));
+  opacity: 0;
+  transition: opacity .12s ease;
+}
+.wf-settings-nav:hover::before,
+.wf-settings-nav.open::before { opacity: 1; }
+.wf-settings-nav .win-font-icon { flex: 0 0 auto; }
+
+/* ---------- 设置弹窗（Windows 11 设置页行卡片风格） ---------- */
+.sd-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 470px;
+}
+.sd-group + .sd-group { margin-top: 24px; }
+.sd-section {
+  font-size: 12px;
+  color: var(--TextFillColorSecondaryBrush, #4b4b4b);
+  margin: 0 0 8px 2px;
+}
+.sd-row-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 16px;
+  border-radius: 4px;
+  background: var(--CardBackgroundFillColorDefaultBrush, var(--SubtleFillColorSecondaryBrush, transparent));
+}
+.sd-row-card + .sd-row-card { margin-top: 4px; }
+.sd-row-card .win-combo-box { min-width: 140px; }
+/* 纯开关：隐藏内容标签（连空格一起），强制容器收缩到开关本体宽度并贴合行右侧 */
+.sd-switch-bare .win-switch-label { display: none !important; }
+.sd-switch-bare { flex: 0 0 42px !important; width: 42px !important; min-width: 42px !important; margin-left: auto; }
+.sd-switch-bare .win-switch-wrap { width: 42px !important; min-width: 0 !important; }
+.sd-row-icon { color: var(--TextFillColorPrimaryBrush, #1a1a1a); flex: 0 0 auto; }
+.sd-row-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.sd-row-title { font-size: var(--wf-font-body); color: var(--TextFillColorPrimaryBrush, #1a1a1a); }
+/* 标题里的 Kinetype 链接：去掉按钮默认内边距，贴合标题排版 */
+.sd-title-link { margin-left: -2px; }
+.sd-title-link.win-hyperlink-button,
+.sd-title-link .win-hyperlink-button { padding: 0 !important; min-width: 0 !important; min-height: 0 !important; }
+.sd-row-sub { font-size: var(--wf-font-caption); color: var(--TextFillColorSecondaryBrush, #4b4b4b); line-height: 1.5; }
+.sd-mark {
+  display: inline-flex;
+  color: var(--TextFillColorPrimaryBrush, #1a1a1a);
+  flex: 0 0 auto;
+}
+.sd-row-sub { display: flex; align-items: center; flex-wrap: wrap; gap: 2px; }
+.sd-row-sub .sd-link { flex: 0 0 auto; }
+.sd-ver { color: var(--TextFillColorTertiaryBrush, #767676); font-size: 12px; flex: 0 0 auto; }
+/* 行卡片内的行动按钮（重置 / 系统字体）：
+   背景和圆角画在内部 content-presenter 上，必须让它撑满按钮，
+   否则会出现「外层按钮 + 内层灰块」两层错位的观感。 */
+.sd-reset-btn.win-button, .sd-reset-btn {
+  min-width: 88px; height: 30px; padding: 0 !important;
+  font-size: 12px;
+}
+.sd-reset-btn .win-button-content-presenter {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0 12px;
+}
+.sd-reset-btn.win-button:active { transform: none; }

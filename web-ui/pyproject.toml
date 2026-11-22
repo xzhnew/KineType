@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kinetype"
+version = "0.1.0"
+description = "Turn a script into a waterfall / rapid-flash kinetic typography video — no After Effects required."
+readme = "../README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+keywords = ["typography", "kinetic-typography", "video", "subtitle", "ffmpeg", "字幕", "快闪"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Topic :: Multimedia :: Video",
+  "Topic :: Multimedia :: Video :: Non-Linear Editor",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "Pillow>=9.0",
+  "numpy>=1.22",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+kinetype = "kinetype.cli:main"
+
+[project.urls]
+Homepage = "https://example.invalid/kinetype"
+
+[tool.setuptools]
+packages = ["kinetype"]
+
+[tool.setuptools.package-data]
+kinetype = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["error::DeprecationWarning"]

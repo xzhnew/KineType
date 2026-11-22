@@ -1,0 +1,35 @@
+{
+  "seed": 20260214,
+  "style": {
+    "palette": ["#FFFFFF", "#FFFFFF", "#FFD84D", "#FF4D5E"],
+    "weights": [5.0, 4.0, 3.5, 2.4],
+    "accent": "#FFD84D",
+    "accent_chance": 0.12,
+    "stroke_width": 0.095,
+    "highlight_box": true,
+    "highlight_box_color": "#FFD84D",
+    "highlight_text_color": "#101014",
+    "shadow": 0.7,
+    "rotation_range": 4.5
+  },
+  "motion": {
+    "enter": "random",
+    "enter_duration": 0.26,
+    "scroll": 0.30,
+    "rush_lines": true,
+    "flash": true,
+    "flash_strength": 0.22
+  },
+  "camera": { "mode": "scroll+bounce", "breathe": 0.06, "shake": 0.16 },
+  "background": {
+    "kind": "gradient",
+    "colors": ["#20222E", "#0A0A0F"],
+    "angle": 100.0,
+    "vignette": 0.30
+  },
+  "font": { "base_size": 45.0, "size_range": [0.80, 1.0, 1.16, 1.32] },
+  "layout": { "anchor_y": 0.68, "linger": 1.5, "max_live": 10 },
+  "text": { "chunk_mode": "tight" },
+  "timing": { "cps_cjk": 13.0, "cps_latin": 5.5 },
+  "output": { "width": 1080, "height": 1920, "fps": 60, "preset": "veryfast", "crf": 18 }
+}
