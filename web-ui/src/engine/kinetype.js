@@ -555,11 +555,14 @@ export class Engine {
       const dscale = 1 - (prog.depth || 0) / 100 * travel;
       sc *= Math.max(0.2, dscale);
       /* ---- rotation era ------------------------------------------------
-         The pile above {转} turns as ONE rigid group.  Pivot, as asked:
-           · turning right → the TOP-RIGHT corner of the LAST glyph
-           · turning left  → the TOP-LEFT  corner of the FIRST glyph
-         of the line that was on screen when {转} fired.  A small gap keeps the
-         turned pile clear of that line. */
+         The pile above {转} turns as ONE rigid group around a point just
+         outside the BOTTOM corner of the line that was showing when {转} fired:
+           · turning left  → bottom-left corner, offset 45° down-left
+           · turning right → bottom-right corner, offset 45° down-right
+         Both offsets are equal in x and y, so the pivot is the lower vertex of
+         the square built on the old/new corner positions. Swinging from below
+         keeps the turned pile clear of the live line instead of folding it
+         over the text. */
       const a = beatAngle(t, b, events);
       const ca = Math.cos(a * Math.PI / 180), sa = Math.sin(a * Math.PI / 180);
       const era = eraInfo(b, events);
@@ -568,14 +571,13 @@ export class Engine {
         const Lf = layout[era.anchor] || L;
         const yPivot = stackY(era.anchor, Lf);
         const pad = Lf.pad || 0;
-        const topY = yPivot - Lf.h / 2 + pad;               /* top edge of that line's glyphs */
-        const Px = a > 0 ? Lf.w / 2 - pad                   /* right→ right edge of last glyph */
-          : -Lf.w / 2 + pad;                                 /* left → left edge of first glyph */
-        const dx0 = -Px, dy0 = (y + dy) - topY;
-        px = Px + dx0 * ca - dy0 * sa;
-        py = topY + dx0 * sa + dy0 * ca;
-        /* breathing room between the turned pile and the live line */
-        py -= Lf.fs * 0.55 * Math.min(1, Math.abs(a) / 90);
+        const off = Lf.fs * 0.55;                           /* 45°: equal dx/dy */
+        const bottomY = yPivot + Lf.h / 2 - pad;            /* bottom edge of the glyphs */
+        const pivotX = a > 0 ? Lf.w / 2 - pad + off : -Lf.w / 2 + pad - off;
+        const pivotY = bottomY + off;
+        const dx0 = -pivotX, dy0 = (y + dy) - pivotY;
+        px = pivotX + dx0 * ca - dy0 * sa;
+        py = pivotY + dx0 * sa + dy0 * ca;
       }
       /* sprite occupies [px-w/2, px+w/2] × [py-h/2, py+h/2] (rotated when a≠0) */
       const scx0 = W / 2 + px, scy0 = H / 2 + py;
